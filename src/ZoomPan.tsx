@@ -132,7 +132,6 @@ export class ZoomPan extends React.Component<ZoomPanProps, ZoomPanState> {
 
   doMouseMove = (e) => {
     if (this.state.dragging) {
-      console.log('Moving');
       e.stopPropagation();
       const coor: Coor = this.adjustCoor(e.clientX, e.clientY);
       const x = coor.x;
@@ -203,9 +202,9 @@ export class ZoomPan extends React.Component<ZoomPanProps, ZoomPanState> {
   };
 
   private adjustCoor(x: number, y: number): Coor {
-    const container: any = this.containerRef;
-    const newX = x - container.offsetLeft;
-    const newY = y - container.offsetTop;
+    const newX = x - (this.containerRef.current?.offsetLeft || 0);
+    const newY = y - (this.containerRef.current?.offsetTop || 0);
+
     return { x: newX, y: newY };
   }
 
@@ -323,13 +322,8 @@ export class ZoomPan extends React.Component<ZoomPanProps, ZoomPanState> {
     }
 
     return React.Children.map(children, (item, i) => {
-      console.log(item.id);
-      console.log(`s:${selection.id}  id:${i} `);
-
       const transform = selection.id == i ? selection.transform : null;
       const box = selection.id == i ? selection.box : null;
-
-      console.log(box);
 
       return (
         <ViewPortElement

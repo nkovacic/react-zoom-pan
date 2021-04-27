@@ -37,7 +37,7 @@ export class ViewPortElement extends React.PureComponent<ViewPortElementProps> {
       this.w = box.w;
       this.h = box.h;
     }
-    console.log(this.transform);
+
     return (
       <div
         id={`${this.props.id}`}
