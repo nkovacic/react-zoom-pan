@@ -9,12 +9,12 @@ export interface ViewPortElementProps {
 }
 
 export class ViewPortElement extends React.PureComponent<ViewPortElementProps> {
-  x: number = 0;
-  y: number = 0;
-  w: number = 100;
-  h: number = 100;
-  transform: string = `1,0,0,1,0,0`;
-  id: string = '';
+  x = 0;
+  y = 0;
+  w = 100;
+  h = 100;
+  transform = `1,0,0,1,0,0`;
+  id = '';
 
   constructor(props: ViewPortElementProps) {
     super(props);

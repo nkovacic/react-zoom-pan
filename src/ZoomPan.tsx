@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createRef } from 'react';
 import RubberBand from './rubberBand/RubberBand';
 import Consts, { ObjectTypes } from './helpers/ViewPortConst';
 import SpacialHelper from './helpers/SpacialHelper';
@@ -6,12 +6,12 @@ import ZoomPanHelper from './helpers/ZoomPanHelper';
 import Matrix from './helpers/Matrix';
 import { ViewPortElement } from './renderer/HOCElement';
 import './ZoomPan.css';
-export interface ICoor {
+export interface Coor {
   x: number;
   y: number;
 }
 
-export interface IZoomPanProps {
+export interface ZoomPanProps {
   viewportMtx?: any;
   children?: any;
   selectedItem?: any;
@@ -20,7 +20,7 @@ export interface IZoomPanProps {
   onAddItem?: Function;
 }
 
-export interface IZoomPanState {
+export interface ZoomPanState {
   dragging?: boolean;
   viewportMtx: Matrix;
   viewportTr?: string;
@@ -28,11 +28,13 @@ export interface IZoomPanState {
   box?: any;
 }
 
-export class ZoomPan extends React.Component<IZoomPanProps, IZoomPanState> {
+export class ZoomPan extends React.Component<ZoomPanProps, ZoomPanState> {
+  private containerRef = createRef<HTMLDivElement>();
+
   selection: any = null;
   zoomPanHelper: ZoomPanHelper;
-  draggingPositionX: number = 0;
-  draggingPositionY: number = 0;
+  draggingPositionX = 0;
+  draggingPositionY = 0;
   mode = Consts.MODE_GLOBAL_PAN;
 
   constructor(props) {
@@ -76,11 +78,12 @@ export class ZoomPan extends React.Component<IZoomPanProps, IZoomPanState> {
   };
 
   getSelectedObjInfo = (item) => {
-    let matrix = item ? new Matrix(item.transform) : new Matrix();
-    let box = item
+    const matrix = item ? new Matrix(item.transform) : new Matrix();
+    const box = item
       ? { id: item.id, x: 0, y: 0, w: item.w, h: item.h }
       : { id: '', x: 0, y: 0, w: 0, h: 0 };
-    let type = item ? this.getObjType(item) : ObjectTypes.TYPE_ITEM;
+    const type = item ? this.getObjType(item) : ObjectTypes.TYPE_ITEM;
+    
     return {
       id: item ? item.id : -1,
       item: item,
@@ -111,7 +114,7 @@ export class ZoomPan extends React.Component<IZoomPanProps, IZoomPanState> {
     if (this.props.onSelectItem) this.props.onSelectItem(parent, item);
     this.selection = item;
     //this.updateSelectedInfo(parent, item);
-    let selection = this.getSelectedObjInfo(item);
+    const selection = this.getSelectedObjInfo(item);
     this.setState({ dragging: true, selection: selection });
     this.mode = Consts.MODE_RUBER_BAND_MOVE;
   };
@@ -131,12 +134,12 @@ export class ZoomPan extends React.Component<IZoomPanProps, IZoomPanState> {
     if (this.state.dragging) {
       console.log('Moving');
       e.stopPropagation();
-      const coor: ICoor = this.adjustCoor(e.clientX, e.clientY);
-      let x = coor.x;
-      let y = coor.y;
+      const coor: Coor = this.adjustCoor(e.clientX, e.clientY);
+      const x = coor.x;
+      const y = coor.y;
 
-      let deltaX = this.draggingPositionX - x;
-      let deltaY = this.draggingPositionY - y;
+      const deltaX = this.draggingPositionX - x;
+      const deltaY = this.draggingPositionY - y;
 
       switch (this.mode) {
         case Consts.MODE_GLOBAL_PAN:
@@ -163,7 +166,7 @@ export class ZoomPan extends React.Component<IZoomPanProps, IZoomPanState> {
         case Consts.MODE_RUBER_BAND_RESIZE_UR:
         case Consts.MODE_RUBER_BAND_RESIZE_DL:
         case Consts.MODE_RUBER_BAND_RESIZE_DR:
-          let newState = SpacialHelper.resizeObject(
+          const newState = SpacialHelper.resizeObject(
             deltaX,
             deltaY,
             this.mode,
@@ -177,7 +180,7 @@ export class ZoomPan extends React.Component<IZoomPanProps, IZoomPanState> {
     }
   };
 
-  doMouseUp = (e) => {
+  doMouseUp = () => {
     this.setState({ dragging: false });
     if (this.state.selection.type == ObjectTypes.TYPE_LINK) {
       if (this.props.onSelectItem) this.props.onSelectItem(null, null);
@@ -192,15 +195,15 @@ export class ZoomPan extends React.Component<IZoomPanProps, IZoomPanState> {
 
   doMouseWheel = (e) => {
     e.preventDefault();
-    const coor: ICoor = this.adjustCoor(e.clientX, e.clientY);
-    let cx = coor.x;
-    let cy = coor.y;
-    let scale = e.deltaY > 0 ? 1.05 : 0.95;
+    const coor: Coor = this.adjustCoor(e.clientX, e.clientY);
+    const cx = coor.x;
+    const cy = coor.y;
+    const scale = e.deltaY > 0 ? 1.05 : 0.95;
     this.zoom(scale, cx, cy);
   };
 
-  private adjustCoor(x: number, y: number): ICoor {
-    const container: any = this.refs.container;
+  private adjustCoor(x: number, y: number): Coor {
+    const container: any = this.containerRef;
     const newX = x - container.offsetLeft;
     const newY = y - container.offsetTop;
     return { x: newX, y: newY };
@@ -241,11 +244,11 @@ export class ZoomPan extends React.Component<IZoomPanProps, IZoomPanState> {
   };
 
   addItem = (e, parent, matrix) => {
-    let type = parseInt(e.dataTransfer.getData('type'));
-    let subtype = e.dataTransfer.getData('subtype');
-    let objType = parseInt(e.dataTransfer.getData('objtype'));
-    let name = e.dataTransfer.getData('name');
-    let data = {
+    const type = parseInt(e.dataTransfer.getData('type'));
+    const subtype = e.dataTransfer.getData('subtype');
+    const objType = parseInt(e.dataTransfer.getData('objtype'));
+    const name = e.dataTransfer.getData('name');
+    const data = {
       name: name,
       type: type,
       objType: objType,
@@ -258,10 +261,10 @@ export class ZoomPan extends React.Component<IZoomPanProps, IZoomPanState> {
   };
 
   updateSelectedItem = (newState) => {
-    let matrix = newState.matrix;
+    const matrix = newState.matrix;
     // newState.box?newState.box.id=this.state.box.id:null;
-    let box = newState.box ? newState.box : this.state.selection.box;
-    let selection = { ...this.state.selection };
+    const box = newState.box ? newState.box : this.state.selection.box;
+    const selection = { ...this.state.selection };
     selection.matrix = matrix;
     selection.transform = matrix.matrixToText();
     selection.box = box;
@@ -272,18 +275,18 @@ export class ZoomPan extends React.Component<IZoomPanProps, IZoomPanState> {
   // VIEW PORT ZOOM & PAN //
   /////////////////////////
 
-  pan = (dx, dy) => {
+  pan = (dx: number, dy: number) => {
     this.zoomPanHelper.pan(dx, dy, this.state.viewportMtx);
     this.applyMatrix();
   };
 
-  zoom = (scale, cx, cy) => {
+  zoom = (scale: number, cx, cy) => {
     this.zoomPanHelper.zoom(scale, cx, cy, this.state.viewportMtx);
     this.applyMatrix();
   };
 
   applyMatrix = () => {
-    let newMatrix = this.state.viewportMtx.matrixToText();
+    const newMatrix = this.state.viewportMtx.matrixToText();
     this.setState({
       viewportTr: newMatrix,
     });
@@ -305,26 +308,32 @@ export class ZoomPan extends React.Component<IZoomPanProps, IZoomPanState> {
   }
 
   setDraggingPosition = (e) => {
-    const container: any = this.refs.container;
-    this.draggingPositionX = e.clientX - container.offsetLeft;
-    this.draggingPositionY = e.clientY - container.offsetTop;
+    this.draggingPositionX =
+      e.clientX - (this.containerRef.current?.offsetLeft || 0);
+    this.draggingPositionY =
+      e.clientY - (this.containerRef.current?.offsetTop || 0);
   };
 
   renderChildren = () => {
-    let selection = this.state.selection;
+    const selection = this.state.selection;
     const { children } = this.props;
-    if (children == null) return null;
-    console.log(children);
-    debugger;
-    const result = children.map((item, i) => {
+
+    if (children == null) {
+      return null;
+    }
+
+    return React.Children.map(children, (item, i) => {
       console.log(item.id);
       console.log(`s:${selection.id}  id:${i} `);
+
       const transform = selection.id == i ? selection.transform : null;
       const box = selection.id == i ? selection.box : null;
+
       console.log(box);
+
       return (
         <ViewPortElement
-          id={i}
+          id={i.toString()}
           key={i}
           transform={transform}
           box={box}
@@ -334,7 +343,6 @@ export class ZoomPan extends React.Component<IZoomPanProps, IZoomPanState> {
         </ViewPortElement>
       );
     });
-    return result;
   };
 
   render() {
@@ -342,7 +350,7 @@ export class ZoomPan extends React.Component<IZoomPanProps, IZoomPanState> {
 
     return (
       <div
-        ref="container"
+        ref={this.containerRef}
         className="zoom-pan-container"
         onDragOver={this.onDragOver}
         onDrop={this.onDrop}
@@ -350,7 +358,6 @@ export class ZoomPan extends React.Component<IZoomPanProps, IZoomPanState> {
       >
         <div
           id="viewport"
-          ref="mainSvg"
           style={{ position: 'relative', userSelect: 'none', height: '100%' }}
           onMouseDown={this.doGlobalMouseDown}
           onWheel={this.doMouseWheel}

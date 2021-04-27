@@ -3,19 +3,20 @@ import Consts from '../helpers/ViewPortConst';
 import SpacialHelper from '../helpers/SpacialHelper';
 import './RubberBand.css';
 
-interface IRubberBandProps {
+interface RubberBandProps {
+  selectedItem?: any;
   viewport?: any;
   selection?: any;
   doRubberMouseDown: Function;
 }
 
-class RubberBand extends React.Component<IRubberBandProps> {
+class RubberBand extends React.Component<RubberBandProps> {
   constructor(props) {
     super(props);
     this.calculateCoordinates = this.calculateCoordinates.bind(this);
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps: RubberBandProps, nextState) {
     return (
       nextProps.selectedItem ||
       nextProps.viewport.viewportTr !== this.props.viewport.viewportTr ||
@@ -25,7 +26,7 @@ class RubberBand extends React.Component<IRubberBandProps> {
   }
 
   calculateCoordinates() {
-    let box = SpacialHelper.calculateRubberBandPosition(
+    const box = SpacialHelper.calculateRubberBandPosition(
       this.props.viewport.selection.matrix,
       this.props.viewport.selection.box,
       this.props.viewport.viewportMtx,
@@ -35,9 +36,12 @@ class RubberBand extends React.Component<IRubberBandProps> {
   }
 
   render() {
-    let coordinates = this.calculateCoordinates();
+    const coordinates = this.calculateCoordinates();
     const { selection } = this.props;
-    if (!selection) return null;
+    
+    if (!selection) {
+      return null;
+    }
 
     return (
       <svg
@@ -51,7 +55,6 @@ class RubberBand extends React.Component<IRubberBandProps> {
       >
         <g transform={`matrix(${coordinates.transform})`}>
           <rect
-            ref="ruberBandRect"
             className="rubberBand"
             x={coordinates.x}
             y={coordinates.y}
@@ -60,7 +63,6 @@ class RubberBand extends React.Component<IRubberBandProps> {
           />
 
           <rect
-            ref="ruberBandTopLeft"
             className="rubberBandHandle"
             x={coordinates.x - Consts.RUBBER_BAND_HANDLE_SIZE}
             y={coordinates.y - Consts.RUBBER_BAND_HANDLE_SIZE}
@@ -74,7 +76,6 @@ class RubberBand extends React.Component<IRubberBandProps> {
             }}
           />
           <rect
-            ref="ruberBandTopRight"
             className="rubberBandHandle"
             x={coordinates.x + coordinates.w}
             y={coordinates.y - Consts.RUBBER_BAND_HANDLE_SIZE}
@@ -88,7 +89,6 @@ class RubberBand extends React.Component<IRubberBandProps> {
             }}
           />
           <rect
-            ref="ruberBandBottomLeft"
             className="rubberBandHandle"
             x={coordinates.x - Consts.RUBBER_BAND_HANDLE_SIZE}
             y={coordinates.y + coordinates.h}
@@ -102,7 +102,6 @@ class RubberBand extends React.Component<IRubberBandProps> {
             }}
           />
           <rect
-            ref="ruberBandBottomRight"
             className="rubberBandHandle"
             x={coordinates.x + coordinates.w}
             y={coordinates.y + coordinates.h}
@@ -116,7 +115,6 @@ class RubberBand extends React.Component<IRubberBandProps> {
             }}
           />
           <rect
-            ref="ruberBandBottomLeft"
             className="rubberBandHandle"
             x={
               coordinates.x + coordinates.w / 2 - Consts.RUBBER_BAND_HANDLE_SIZE
