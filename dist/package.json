@@ -12,11 +12,6 @@
     "type": "git",
     "url": "git+https://github.com/guiqui/react-zoom-pan.git"
   },
-  "files": [
-    "/dist",
-    "LICENSE",
-    "/README.md"
-  ],
   "scripts": {
     "build": "yarn clean && rollup -c && yarn postBuild",
     "postBuild": "node ./scripts/postBuild",
@@ -32,9 +27,10 @@
     "test:watch": "yarn test --watch",
     "test:coverage": "jest --coverage --colors --maxWorkers=2"
   },
-  "main": "./dist/lib.cjs.js",
-  "module": "./dist/lib.esm.js",
-  "browser": "./dist/lib.umd.js",
+  "main": "lib.cjs.js",
+  "module": "lib.esm.js",
+  "browser": "lib.umd.js",
+  "types": "index.d.ts",
   "dependencies": {
     "react": "^16.13.1"
   },
