@@ -6,10 +6,7 @@ import ZoomPanHelper from './helpers/ZoomPanHelper';
 import Matrix from './helpers/Matrix';
 import { ViewPortElement } from './renderer/HOCElement';
 import './ZoomPan.css';
-export interface Coor {
-  x: number;
-  y: number;
-}
+import type { Coordinate } from './helpers/types';
 
 export interface ZoomPanProps {
   viewportMtx?: any;
@@ -133,7 +130,7 @@ export class ZoomPan extends React.Component<ZoomPanProps, ZoomPanState> {
   doMouseMove = (e) => {
     if (this.state.dragging) {
       e.stopPropagation();
-      const coor: Coor = this.adjustCoor(e.clientX, e.clientY);
+      const coor = this.adjustCoor(e.clientX, e.clientY);
       const x = coor.x;
       const y = coor.y;
 
@@ -194,14 +191,14 @@ export class ZoomPan extends React.Component<ZoomPanProps, ZoomPanState> {
 
   doMouseWheel = (e) => {
     e.preventDefault();
-    const coor: Coor = this.adjustCoor(e.clientX, e.clientY);
+    const coor: Coordinate = this.adjustCoor(e.clientX, e.clientY);
     const cx = coor.x;
     const cy = coor.y;
     const scale = e.deltaY > 0 ? 1.05 : 0.95;
     this.zoom(scale, cx, cy);
   };
 
-  private adjustCoor(x: number, y: number): Coor {
+  private adjustCoor(x: number, y: number): Coordinate {
     const newX = x - (this.containerRef.current?.offsetLeft || 0);
     const newY = y - (this.containerRef.current?.offsetTop || 0);
 

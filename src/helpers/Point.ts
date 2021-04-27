@@ -5,8 +5,6 @@ class Point {
   y = 0;
 
   constructor(x: number, y: number) {
-    this.matrixTransform = this.matrixTransform.bind(this);
-
     this.x = x;
     this.y = y;
   }
